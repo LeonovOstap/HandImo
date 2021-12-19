@@ -145,7 +145,7 @@ int main(int a, char** b)
     char RecordingDirectory[256] = "N:/GemDev/KinectRecordning";
     char RecordingPrefix[256] = "HandImo";
 
-    
+    GLuint Preview_Image;
     
     // Main loop
     while (!glfwWindowShouldClose(window))
@@ -346,24 +346,19 @@ int main(int a, char** b)
         
 
 
-        if(interleave.Image[0].data != nullptr)
+        if(interleave.Image[0].data != nullptr && interleave.IsTracking)
         {
-            GLuint image_texture;
-            glGenTextures(1, &image_texture);
-            glBindTexture(GL_TEXTURE_2D, image_texture);
+            
+            glDeleteTextures(1, &Preview_Image);
+            glGenTextures(1, &Preview_Image);
+            glBindTexture(GL_TEXTURE_2D, Preview_Image);
 
-            // Setup filtering parameters for display
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
-        
-            #if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
-            glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-#endif
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 640, 240, 0, GL_RGBA, GL_UNSIGNED_BYTE,interleave.Image[0].data);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, 640, 240, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, interleave.Image[0].data);
+            
             //glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, 640, 240, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &interleave.Image);
-            ImGui::Image((void*)(intptr_t)image_texture,ImVec2(640, 240));
+            ImGui::Image((void*)(intptr_t)Preview_Image,ImVec2(640, 240));
+            
         }
 
         glMatrixMode(GL_MODELVIEW_MATRIX);
