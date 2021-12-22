@@ -3,7 +3,8 @@
 #include <fstream>
 #include <iostream>
 
-#include "LeapInterleave.h"
+#include "Leap/Leap2Handimo.h"
+#include "Leap/LeapInterleave.h"
 
 void BVH::WriteToFile(const char* DirectoryPath, const char* Prefix, RecordingBulkData* BulkData)
 {
@@ -15,7 +16,7 @@ void BVH::WriteToFile(const char* DirectoryPath, const char* Prefix, RecordingBu
         Stream << "ROOT " << Bones::ARM.BoneName << endl;
         Stream << "{\n";
 
-        util::WriteBVHBoneRecursive(&Bones::ARM, Stream, BulkData->Frames[BulkData->Frames.size()/2][0]);
+        util::WriteJointData(&Bones::ARM, Stream, BulkData->Frames[0][0]);
 
         Stream << "}\n";
         
@@ -26,47 +27,82 @@ void BVH::WriteToFile(const char* DirectoryPath, const char* Prefix, RecordingBu
         Stream << "MOTION\n";
         Stream << "Frames: " << BulkData->Frames.size() << "\n";
         Stream << "Frame Time: " << 0.0081f << "\n";
+
+
+        /*for(auto Frame : BulkData->Frames)
+        {
+            util::WriteFrameMotionData(&Bones::ARM, Stream, Frame[0]);
+            Stream << endl;
+        }*/
+
+        
         Stream.close();
 
     }
 }
 
-void BVH::util::ForEachBoneInHierarchy(BVHBoneData* Root, std::function<void(BVHBoneData*, ofstream&)> Function, ofstream& inStream)
+
+void BVH::util::WriteJointData(BVHBoneData* Root, ofstream& Stream, LEAP_HAND& Frame)
 {
-    for(int childIdx = 0; childIdx < Root->NumChildren; ++childIdx)
+    if(Root->ParentBone != nullptr)
     {
-        BVHBoneData* HBone = Root->Children[childIdx];
-        Function(HBone, inStream);
+        Stream << "OFFSET ";
+        auto Vec1 = LeapInterleave::GetHandFromData(Root->ParentBone, Frame);
+        auto Vec2 = LeapInterleave::GetHandFromData(Root, Frame);
+        Vector3f Offset = Leap2ImoVec(Vec1->prev_joint) - Leap2ImoVec(Vec2->prev_joint);
+
+        Stream << Offset.ToString();
+            
+        Stream << "\n";
+        Stream << "CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation\n";
+    }else
+    {
+        Stream << "OFFSET 0 0 0\n";
+        Stream << "CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation\n";
     }
+    if(Root->NumChildren > 0)
+    {
+        for(int childIdx = 0; childIdx < Root->NumChildren; ++childIdx)
+        {
+            BVHBoneData* HBone = Root->Children[childIdx];
+            Stream << "JOINT " << HBone->BoneName.c_str() << "\n";
+            Stream << "{\n";
+            WriteJointData(HBone,Stream,Frame);
+                
+            Stream << "}\n";
+        }
+    }
+    else
+    {
+        Stream << "End Site\n";
+        Stream << "{\n";
+        Stream << "OFFSET ";
+        auto Vec1 = LeapInterleave::GetHandFromData(Root, Frame);
+        auto Vec2 = LeapInterleave::GetHandFromData(Root, Frame);
+        Vector3f Offset = Leap2ImoVec(Vec1->prev_joint) - Leap2ImoVec(Vec2->next_joint);
+
+        Stream << Offset.ToString();
+        Stream << "\n}\n";
+    }
+    
+
+    
 }
 
-void BVH::util::WriteBVHBoneRecursive(BVHBoneData* Root, ofstream& Stream, LEAP_HAND Frame)
+void BVH::util::WriteFrameMotionData(BVHBoneData* Root, ofstream& Stream, LEAP_HAND& Frame)
 {
-    for(int childIdx = 0; childIdx < Root->NumChildren; ++childIdx)
+    if(Root->ParentBone != nullptr)
     {
-        BVHBoneData* HBone = Root->Children[childIdx];
-        if(Root->ParentBone != nullptr)
-        {
-            Stream << "OFFSET ";
-            float Offset[3];
-            for (int i = 0; i < 3; ++i)
-            {
-                Offset[i] = LeapInterleave::GetHandFromData(Root, Frame)->next_joint.v[i] - LeapInterleave::GetHandFromData(Root, Frame)->prev_joint.v[i];
-            }
-        
-            for (int i = 0; i < 3; ++i)
-            {
-                Stream << Root->offset[i] << " ";
-            }
-            Stream << "\n";
-            Stream << "CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation\n";
-            Stream << "JOINT " << Root->BoneName.c_str() << "\n";
-            Stream << "{\n";
-        }
-       // if(Root->NumChildren > 0)
-           // WriteBVHBoneRecursive(Root, Stream,);
+        auto Vec1 = LeapInterleave::GetHandFromData(Root->ParentBone, Frame);
+        auto Vec2 = LeapInterleave::GetHandFromData(Root, Frame);
+        Vector3f Offset = Leap2ImoVec(Vec1->prev_joint) - Leap2ImoVec(Vec2->prev_joint);
+
+        Stream << Offset.ToString();
+    }else
+    {
+       Stream << "0 0 0 ";
     }
-    Stream << "}\n";
-    
+
+    ///tbd
 }
 

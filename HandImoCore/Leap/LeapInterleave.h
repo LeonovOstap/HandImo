@@ -2,9 +2,9 @@
 #include <assert.h>
 #include <string>
 #include <thread>
+#include "../Bones.h"
 #include <vector>
 
-#include "Bones.h"
 #include "LeapC.h"
 using namespace std;
 

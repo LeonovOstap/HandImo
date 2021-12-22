@@ -21,7 +21,7 @@
 
 #include "Bones.h"
 #include "camera.h"
-#include "LeapInterleave.h"
+#include "Leap/LeapInterleave.h"
 #include "Line.h"
 #include "Octahedron.h"
 #include "Leap/Leap2Handimo.h"
@@ -104,7 +104,7 @@ int main(int a, char** b)
 #endif
 
     // Create window with graphics contex
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Ty Pydor", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "Test Application 1", NULL, NULL);
     if (window == NULL)
         return 1;
     glfwMakeContextCurrent(window);
@@ -131,6 +131,8 @@ int main(int a, char** b)
 
     LeapInterleave interleave = LeapInterleave();
     glEnable(GL_DEPTH_TEST); // Depth Testing
+    glDepthFunc(GL_LEQUAL);
+    glShadeModel(GL_SMOOTH);
 
     camera.SetMode(FREE);
     camera.SetPosition(glm::vec3(0, 6, -1));
@@ -142,7 +144,7 @@ int main(int a, char** b)
 
     Vector3f HandBonesColor(1.f,0.f,0.f);
     Vector3f HandPointColor(1,1,1);
-    char RecordingDirectory[256] = "N:/GemDev/KinectRecordning";
+    char RecordingDirectory[256] = "N:/GemDev/KinectRecordning/fuck.bvh";
     char RecordingPrefix[256] = "HandImo";
 
     GLuint Preview_Image;
@@ -158,11 +160,22 @@ int main(int a, char** b)
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
+        glTranslatef(0,0,0);
+        float r[3] = {1,0,0};
+        float g[3] = {0,1,0};
+        float b[3] = {0,0,1};
+
+        DrawLine(Vector3f(0,0,0), Vector3f(1,0,0), r);
+        DrawLine(Vector3f(0,0,0), Vector3f(0,1,0), g);
+        DrawLine(Vector3f(0,0,0), Vector3f(0,0,1), b);
+        
         glm::mat4 model, view, projection;
         camera.Update();
         camera.GetMatricies(projection,model,view);
 
         glm::mat4 mvp = projection* view * model;	//Compute the mvp matrix
+        
         glLoadMatrixf(glm::value_ptr(mvp));
 
         for(int x = -100; x < 100; ++x)
@@ -346,7 +359,7 @@ int main(int a, char** b)
         
 
 
-        if(interleave.Image[0].data != nullptr && interleave.IsTracking)
+        if( interleave.IsTracking)
         {
             
             glDeleteTextures(1, &Preview_Image);

@@ -5,8 +5,9 @@
 #include <vec3.hpp>
 #include <detail/func_geometric.inl>
 
-#include "BVHExporter.h"
-#include "imgui/backends/imgui_impl_opengl3_loader.h"
+#include "Leap2Handimo.h"
+#include "../BVHExporter.h"
+#include "../imgui/backends/imgui_impl_opengl3_loader.h"
 #define MAX_CONNECTION_RETRIES 10
 
 void RecordingBulkData::AppendFrame(vector<LEAP_HAND> Hand)
@@ -74,28 +75,34 @@ void LeapInterleave::UpdateTracking(LEAP_CONNECTION& Connection, vector<LEAP_HAN
 
 void LeapInterleave::StartRecording()
 {
-    /*IsRecording = true;
+    IsRecording = true;
     RecordingBulk = new RecordingBulkData;
-    RecordingBulk->TimeStarted = std::chrono::system_clock::now();*/
+    RecordingBulk->TimeStarted = std::chrono::system_clock::now();
     
     
 
-    float b[3] = {5.000055452456745454564654,1,0};
-    Vector3f MyVector = Vector3f(b);
+   // float b[3] = {5.000055452456745454564654,1,0};
+    //Vector3f MyVector = Vector3f(b);
    // MyVector[1] = 5;
    // MyVector[2] = 5;
     //MyVector += -Vector3f(5.f,5.f);
     
-    std::cout << Vector3f(b).X << endl;
+    /*std::cout << Vector3f(b).X << endl;
     std::cout << Vector3f(1.0f,2.0f,3.0f).Dot(Vector3f(1.0f,5.0f,7.0f)) << endl;
-    std::cout << glm::dot(glm::vec3(1,2,3),glm::vec3(1,5,7)) << endl;
+    std::cout << glm::dot(glm::vec3(1,2,3),glm::vec3(1,5,7)) << endl;*/
+
+    auto Bone = GetHandFromData(&Bones::THUMB_Metacarpal, Hands[0]);
+    if(Bone)
+    {
+        cout << Leap2ImoVec(Bone->prev_joint).ToString() << endl;
+        cout << Leap2ImoVec(Hands[0].thumb.metacarpal.prev_joint).ToString() << endl;
+    }
+    
 }
 
 void LeapInterleave::StopRecording(const char* Filename)
 {
     IsRecording = false;
-    RecordingBulk->TimeFinished = std::chrono::system_clock::now();
-    RecordingBulk->Duration = (RecordingBulk->TimeFinished - RecordingBulk->TimeStarted).count() * 1000;
     
     BVH::WriteToFile(Filename, 0, RecordingBulk);
 }
@@ -114,7 +121,7 @@ void LeapInterleave::Calibrate()
 
 LEAP_BONE* LeapInterleave::GetHandFromData(BVHBoneData* Bone, LEAP_HAND InHand)
 {
-    if(Bone == &Bones::ARM)
+    if(Bone->BoneName == Bones::ARM.BoneName)
         return &InHand.arm;
     for(int i = 0; i < 5;++i)
     {
@@ -123,11 +130,12 @@ LEAP_BONE* LeapInterleave::GetHandFromData(BVHBoneData* Bone, LEAP_HAND InHand)
         BVHBoneData* PartData = FingerData;
         for(int j = 0; j < 4; ++j)
         {
-            PartData = PartData->Children[0];
-            if(PartData == Bone)
+            
+            if(PartData->BoneName == Bone->BoneName)
             {
                 return &InHand.digits[i].bones[j];
             }
+            PartData = PartData->Children[0];
         }
     }
     return nullptr;

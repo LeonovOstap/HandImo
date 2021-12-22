@@ -67,7 +67,19 @@ namespace MathImpl
         {
             return memcmp(mdata,Other.mdata,sizeof(mdata)) == 0;
         }
-        
+
+        //Arbitrary Functions
+        std::string ToString()
+        {
+            std::string OutString;
+            for(int i = 0; i < ContainerSize; ++i)
+            {
+                auto Value = std::to_string(mdata[i]);
+                OutString = OutString + Value.substr(0,Value.size()-3) + " ";
+            }
+            OutString.pop_back();
+            return OutString;
+        }
 
         //Operators
 

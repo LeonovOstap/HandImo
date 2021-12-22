@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <string>
 
+#include "Math/MathTypes.h"
+
 struct BVHBoneData
 {
     
@@ -26,9 +28,8 @@ public:
     int NumChildren = 0;
 
     std::string BoneName;
-    //offset from parent bone
-    float offset[3] = {0,0,0};
 };
+
 
 
 namespace Bones

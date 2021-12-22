@@ -2,8 +2,8 @@
 #include <functional>
 
 #include "Bones.h"
-#include "LeapInterleave.h"
 #include "Math/MathTypes.h"
+#include "Leap/LeapInterleave.h"
 struct RecordingBulkData;
 
 
@@ -13,8 +13,8 @@ namespace BVH
 
     namespace util
     {
-        void ForEachBoneInHierarchy(BVHBoneData* Root, std::function<void(BVHBoneData*, ofstream&)> Function, ofstream& inStream);
-        void WriteBVHBoneRecursive(BVHBoneData* Root, ofstream& Stream, LEAP_HAND Frame);
+        void WriteJointData(BVHBoneData* Root, ofstream& Stream, LEAP_HAND& Frame);
+        void WriteFrameMotionData(BVHBoneData* Root, ofstream& Stream, LEAP_HAND& Frame);
     }
     
 }
