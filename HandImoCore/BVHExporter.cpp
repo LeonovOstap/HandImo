@@ -29,11 +29,11 @@ void BVH::WriteToFile(const char* DirectoryPath, const char* Prefix, RecordingBu
         Stream << "Frame Time: " << 0.0081f << "\n";
 
 
-        /*for(auto Frame : BulkData->Frames)
+        for(auto Frame : BulkData->Frames)
         {
             util::WriteFrameMotionData(&Bones::ARM, Stream, Frame[0]);
             Stream << endl;
-        }*/
+        }
 
         
         Stream.close();
@@ -97,12 +97,21 @@ void BVH::util::WriteFrameMotionData(BVHBoneData* Root, ofstream& Stream, LEAP_H
         auto Vec2 = LeapInterleave::GetHandFromData(Root, Frame);
         Vector3f Offset = Leap2ImoVec(Vec1->prev_joint) - Leap2ImoVec(Vec2->prev_joint);
 
-        Stream << Offset.ToString();
+        Stream << Offset.ToString() << " ";
     }else
     {
        Stream << "0 0 0 ";
     }
 
-    ///tbd
+    auto Quat = LeapInterleave::GetHandFromData(Root, Frame)->rotation;
+    Stream << Quat.z << " " << Quat.x << " " << Quat.y << " ";
+    if(Root->NumChildren > 0)
+    {
+        for(int childIdx = 0; childIdx < Root->NumChildren; ++childIdx)
+        {
+            BVHBoneData* HBone = Root->Children[childIdx];
+            WriteFrameMotionData(HBone, Stream, Frame);
+        }
+    }
 }
 
