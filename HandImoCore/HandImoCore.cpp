@@ -19,7 +19,7 @@
 #include "gtc/matrix_transform.hpp"
 #include <GLFW/glfw3.h>
 
-#include "Bones.h"
+#include "Skeleton.h"
 #include "camera.h"
 #include "Leap/LeapInterleave.h"
 #include "Line.h"
@@ -241,55 +241,55 @@ int main(int a, char** b)
             if(ImGui::CollapsingHeader("Skeleton Settings"))
             {
                 ImGui::Indent(16.f);
-                ImGui::InputText("Arm Name", (char*)Bones::ARM.BoneName.data(), Bones::ARM.BoneName.length()+1);
+                ImGui::InputText("Arm Name", (char*)Skeleton::ARM.BoneName.data(), Skeleton::ARM.BoneName.length()+1);
                 ImGui::Separator();
                 if(ImGui::CollapsingHeader("Thumb Bones"))
                 {
                     ImGui::Indent(16.f);
-                    ImGui::InputText("Thumb Metacarpal Name", (char*)Bones::THUMB_Metacarpal.BoneName.data(), Bones::THUMB_Metacarpal.BoneName.length());
-                    ImGui::InputText("Thumb Proximal Name", (char*)Bones::THUMB_Proximal.BoneName.data(), Bones::THUMB_Proximal.BoneName.length());
-                    ImGui::InputText("Thumb Intermediate Name", (char*)Bones::THUMB_Intermediate.BoneName.data(), Bones::THUMB_Intermediate.BoneName.length());
-                    ImGui::InputText("Thumb Distal Name", (char*)Bones::THUMB_Distal.BoneName.data(), Bones::THUMB_Distal.BoneName.length());
+                    ImGui::InputText("Thumb Metacarpal Name", (char*)Skeleton::THUMB_Metacarpal.BoneName.data(), Skeleton::THUMB_Metacarpal.BoneName.length());
+                    ImGui::InputText("Thumb Proximal Name", (char*)Skeleton::THUMB_Proximal.BoneName.data(), Skeleton::THUMB_Proximal.BoneName.length());
+                    ImGui::InputText("Thumb Intermediate Name", (char*)Skeleton::THUMB_Intermediate.BoneName.data(), Skeleton::THUMB_Intermediate.BoneName.length());
+                    ImGui::InputText("Thumb Distal Name", (char*)Skeleton::THUMB_Distal.BoneName.data(), Skeleton::THUMB_Distal.BoneName.length());
                     ImGui::Unindent(16.f);
                 }
                 ImGui::Separator();
                 if(ImGui::CollapsingHeader("Index Bones"))
                 {
                     ImGui::Indent(16.f);
-                    ImGui::InputText("Index Metacarpal Name", (char*)Bones::INDEX_Metacarpal.BoneName.data(), Bones::INDEX_Metacarpal.BoneName.length());
-                    ImGui::InputText("Index Proximal Name", (char*)Bones::INDEX_Proximal.BoneName.data(), Bones::INDEX_Proximal.BoneName.length());
-                    ImGui::InputText("Index Intermediate Name", (char*)Bones::INDEX_Intermediate.BoneName.data(), Bones::INDEX_Intermediate.BoneName.length());
-                    ImGui::InputText("Index Distal Name", (char*)Bones::INDEX_Distal.BoneName.data(), Bones::INDEX_Distal.BoneName.length());
+                    ImGui::InputText("Index Metacarpal Name", (char*)Skeleton::INDEX_Metacarpal.BoneName.data(), Skeleton::INDEX_Metacarpal.BoneName.length());
+                    ImGui::InputText("Index Proximal Name", (char*)Skeleton::INDEX_Proximal.BoneName.data(), Skeleton::INDEX_Proximal.BoneName.length());
+                    ImGui::InputText("Index Intermediate Name", (char*)Skeleton::INDEX_Intermediate.BoneName.data(), Skeleton::INDEX_Intermediate.BoneName.length());
+                    ImGui::InputText("Index Distal Name", (char*)Skeleton::INDEX_Distal.BoneName.data(), Skeleton::INDEX_Distal.BoneName.length());
                     ImGui::Unindent(16.f);
                 }
                 ImGui::Separator();
                 if(ImGui::CollapsingHeader("Middle Bones"))
                 {
                     ImGui::Indent(16.f);
-                    ImGui::InputText("Middle Metacarpal Name", (char*)Bones::MIDDLE_Metacarpal.BoneName.data(), Bones::MIDDLE_Metacarpal.BoneName.length());
-                    ImGui::InputText("Middle Proximal Name", (char*)Bones::MIDDLE_Proximal.BoneName.data(), Bones::MIDDLE_Proximal.BoneName.length());
-                    ImGui::InputText("Middle Intermediate Name", (char*)Bones::MIDDLE_Intermediate.BoneName.data(), Bones::MIDDLE_Intermediate.BoneName.length());
-                    ImGui::InputText("Middle Distal Name", (char*)Bones::MIDDLE_Distal.BoneName.data(), Bones::MIDDLE_Distal.BoneName.length());
+                    ImGui::InputText("Middle Metacarpal Name", (char*)Skeleton::MIDDLE_Metacarpal.BoneName.data(), Skeleton::MIDDLE_Metacarpal.BoneName.length());
+                    ImGui::InputText("Middle Proximal Name", (char*)Skeleton::MIDDLE_Proximal.BoneName.data(), Skeleton::MIDDLE_Proximal.BoneName.length());
+                    ImGui::InputText("Middle Intermediate Name", (char*)Skeleton::MIDDLE_Intermediate.BoneName.data(), Skeleton::MIDDLE_Intermediate.BoneName.length());
+                    ImGui::InputText("Middle Distal Name", (char*)Skeleton::MIDDLE_Distal.BoneName.data(), Skeleton::MIDDLE_Distal.BoneName.length());
                     ImGui::Unindent(16.f);
                 }
                 ImGui::Separator();
                 if(ImGui::CollapsingHeader("Ring Bones"))
                 {
                     ImGui::Indent(16.f);
-                    ImGui::InputText("Ring Metacarpal Name", (char*)Bones::RING_Metacarpal.BoneName.data(), Bones::RING_Metacarpal.BoneName.length());
-                    ImGui::InputText("Ring Proximal Name", (char*)Bones::RING_Proximal.BoneName.data(), Bones::RING_Proximal.BoneName.length());
-                    ImGui::InputText("Ring Intermediate Name", (char*)Bones::RING_Intermediate.BoneName.data(), Bones::RING_Intermediate.BoneName.length());
-                    ImGui::InputText("Ring Distal Name", (char*)Bones::RING_Distal.BoneName.data(), Bones::RING_Distal.BoneName.length());
+                    ImGui::InputText("Ring Metacarpal Name", (char*)Skeleton::RING_Metacarpal.BoneName.data(), Skeleton::RING_Metacarpal.BoneName.length());
+                    ImGui::InputText("Ring Proximal Name", (char*)Skeleton::RING_Proximal.BoneName.data(), Skeleton::RING_Proximal.BoneName.length());
+                    ImGui::InputText("Ring Intermediate Name", (char*)Skeleton::RING_Intermediate.BoneName.data(), Skeleton::RING_Intermediate.BoneName.length());
+                    ImGui::InputText("Ring Distal Name", (char*)Skeleton::RING_Distal.BoneName.data(), Skeleton::RING_Distal.BoneName.length());
                     ImGui::Unindent(16.f);
                 }
                 ImGui::Separator();
                 if(ImGui::CollapsingHeader("Pinkie Bones"))
                 {
                     ImGui::Indent(16.f);
-                    ImGui::InputText("Pinkie Metacarpal Name", (char*)Bones::PINKIE_Metacarpal.BoneName.data(), Bones::PINKIE_Metacarpal.BoneName.length());
-                    ImGui::InputText("Pinkie Proximal Name", (char*)Bones::PINKIE_Proximal.BoneName.data(), Bones::PINKIE_Proximal.BoneName.length());
-                    ImGui::InputText("Pinkie Intermediate Name", (char*)Bones::PINKIE_Intermediate.BoneName.data(), Bones::PINKIE_Intermediate.BoneName.length());
-                    ImGui::InputText("Pinkie Distal Name", (char*)Bones::PINKIE_Distal.BoneName.data(), Bones::PINKIE_Distal.BoneName.length());
+                    ImGui::InputText("Pinkie Metacarpal Name", (char*)Skeleton::PINKIE_Metacarpal.BoneName.data(), Skeleton::PINKIE_Metacarpal.BoneName.length());
+                    ImGui::InputText("Pinkie Proximal Name", (char*)Skeleton::PINKIE_Proximal.BoneName.data(), Skeleton::PINKIE_Proximal.BoneName.length());
+                    ImGui::InputText("Pinkie Intermediate Name", (char*)Skeleton::PINKIE_Intermediate.BoneName.data(), Skeleton::PINKIE_Intermediate.BoneName.length());
+                    ImGui::InputText("Pinkie Distal Name", (char*)Skeleton::PINKIE_Distal.BoneName.data(), Skeleton::PINKIE_Distal.BoneName.length());
                     ImGui::Unindent(16.f);
                 }
                 

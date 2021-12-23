@@ -176,7 +176,6 @@
   <ItemGroup>
     <ClCompile Include="BVHExporter.cpp" />
     <ClCompile Include="camera.cpp" />
-    <ClCompile Include="FBXExporter.cpp" />
     <ClCompile Include="HandImoCore.cpp" />
     <ClCompile Include="imgui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="imgui\backends\imgui_impl_opengl2.cpp" />
@@ -268,10 +267,9 @@
     <None Include="imgui\.gitignore" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Bones.h" />
+    <ClInclude Include="Skeleton.h" />
     <ClInclude Include="BVHExporter.h" />
     <ClInclude Include="camera.h" />
-    <ClInclude Include="FBXExporter.h" />
     <ClInclude Include="imgui\backends\imgui_impl_glfw.h" />
     <ClInclude Include="imgui\backends\imgui_impl_opengl2.h" />
     <ClInclude Include="imgui\backends\imgui_impl_opengl3.h" />
@@ -286,6 +284,7 @@
     <ClInclude Include="Leap\Leap2Handimo.h" />
     <ClInclude Include="Leap\LeapInterleave.h" />
     <ClInclude Include="Line.h" />
+    <ClInclude Include="Math\MathDefines.h" />
     <ClInclude Include="Math\MathTypes.h" />
     <ClInclude Include="Math\Matrix\Matrix.h" />
     <ClInclude Include="Math\Matrix\Quaternion.h" />

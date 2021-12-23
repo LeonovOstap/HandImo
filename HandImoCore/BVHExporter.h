@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <functional>
 
-#include "Bones.h"
+#include "Skeleton.h"
 #include "Math/MathTypes.h"
 #include "Leap/LeapInterleave.h"
 struct RecordingBulkData;
@@ -13,8 +13,8 @@ namespace BVH
 
     namespace util
     {
-        void WriteJointData(BVHBoneData* Root, ofstream& Stream, LEAP_HAND& Frame);
-        void WriteFrameMotionData(BVHBoneData* Root, ofstream& Stream, LEAP_HAND& Frame);
+        void WriteJointData(Joint* Root, ofstream& Stream, LEAP_HAND& Frame);
+        void WriteFrameMotionData(Joint* Root, ofstream& Stream, LEAP_HAND& Frame);
     }
     
 }

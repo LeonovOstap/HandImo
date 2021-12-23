@@ -91,7 +91,7 @@ void LeapInterleave::StartRecording()
     std::cout << Vector3f(1.0f,2.0f,3.0f).Dot(Vector3f(1.0f,5.0f,7.0f)) << endl;
     std::cout << glm::dot(glm::vec3(1,2,3),glm::vec3(1,5,7)) << endl;*/
 
-    auto Bone = GetHandFromData(&Bones::THUMB_Metacarpal, Hands[0]);
+    auto Bone = GetHandFromData(&Skeleton::THUMB_Metacarpal, Hands[0]);
     if(Bone)
     {
         cout << Leap2ImoVec(Bone->prev_joint).ToString() << endl;
@@ -119,15 +119,15 @@ void LeapInterleave::Calibrate()
 {
 }
 
-LEAP_BONE* LeapInterleave::GetHandFromData(BVHBoneData* Bone, LEAP_HAND InHand)
+LEAP_BONE* LeapInterleave::GetHandFromData(Joint* Bone, LEAP_HAND InHand)
 {
-    if(Bone->BoneName == Bones::ARM.BoneName)
+    if(Bone->BoneName == Skeleton::ARM.BoneName)
         return &InHand.arm;
     for(int i = 0; i < 5;++i)
     {
 
-        BVHBoneData* FingerData = Bones::ARM.Children[i];
-        BVHBoneData* PartData = FingerData;
+        Joint* FingerData = Skeleton::ARM.Children[i];
+        Joint* PartData = FingerData;
         for(int j = 0; j < 4; ++j)
         {
             

@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <string>
 #include <thread>
-#include "../Bones.h"
+#include "../Skeleton.h"
 #include <vector>
 
 #include "LeapC.h"
@@ -55,7 +55,7 @@ public:
     void SetTrackingMode(bool HMD);
     void Calibrate();
 
-    static LEAP_BONE* GetHandFromData(BVHBoneData* Bone, LEAP_HAND InHand);
+    static LEAP_BONE* GetHandFromData(Joint* Bone, LEAP_HAND InHand);
 
 private:
     bool PollData();

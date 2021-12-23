@@ -13,10 +13,10 @@ void BVH::WriteToFile(const char* DirectoryPath, const char* Prefix, RecordingBu
     {
         //Write header
         Stream << "HIERARCHY\n";
-        Stream << "ROOT " << Bones::ARM.BoneName << endl;
+        Stream << "ROOT " << Skeleton::ARM.BoneName << endl;
         Stream << "{\n";
 
-        util::WriteJointData(&Bones::ARM, Stream, BulkData->Frames[0][0]);
+        util::WriteJointData(&Skeleton::ARM, Stream, BulkData->Frames[0][0]);
 
         Stream << "}\n";
         
@@ -31,7 +31,7 @@ void BVH::WriteToFile(const char* DirectoryPath, const char* Prefix, RecordingBu
 
         for(auto Frame : BulkData->Frames)
         {
-            util::WriteFrameMotionData(&Bones::ARM, Stream, Frame[0]);
+            util::WriteFrameMotionData(&Skeleton::ARM, Stream, Frame[0]);
             Stream << endl;
         }
 
@@ -42,7 +42,7 @@ void BVH::WriteToFile(const char* DirectoryPath, const char* Prefix, RecordingBu
 }
 
 
-void BVH::util::WriteJointData(BVHBoneData* Root, ofstream& Stream, LEAP_HAND& Frame)
+void BVH::util::WriteJointData(Joint* Root, ofstream& Stream, LEAP_HAND& Frame)
 {
     if(Root->ParentBone != nullptr)
     {
@@ -57,14 +57,17 @@ void BVH::util::WriteJointData(BVHBoneData* Root, ofstream& Stream, LEAP_HAND& F
         Stream << "CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation\n";
     }else
     {
-        Stream << "OFFSET 0 0 0\n";
-        Stream << "CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation\n";
+        Stream << "OFFSET ";
+        auto Vec2 = LeapInterleave::GetHandFromData(Root, Frame);
+        Vector3f Offset = Leap2ImoVec(Vec2->prev_joint) - Leap2ImoVec(Vec2->next_joint);
+        Stream << Offset.ToString();
+        Stream << "\nCHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation\n";
     }
     if(Root->NumChildren > 0)
     {
         for(int childIdx = 0; childIdx < Root->NumChildren; ++childIdx)
         {
-            BVHBoneData* HBone = Root->Children[childIdx];
+            Joint* HBone = Root->Children[childIdx];
             Stream << "JOINT " << HBone->BoneName.c_str() << "\n";
             Stream << "{\n";
             WriteJointData(HBone,Stream,Frame);
@@ -77,9 +80,8 @@ void BVH::util::WriteJointData(BVHBoneData* Root, ofstream& Stream, LEAP_HAND& F
         Stream << "End Site\n";
         Stream << "{\n";
         Stream << "OFFSET ";
-        auto Vec1 = LeapInterleave::GetHandFromData(Root, Frame);
         auto Vec2 = LeapInterleave::GetHandFromData(Root, Frame);
-        Vector3f Offset = Leap2ImoVec(Vec1->prev_joint) - Leap2ImoVec(Vec2->next_joint);
+        Vector3f Offset = Leap2ImoVec(Vec2->prev_joint) - Leap2ImoVec(Vec2->next_joint);
 
         Stream << Offset.ToString();
         Stream << "\n}\n";
@@ -89,7 +91,7 @@ void BVH::util::WriteJointData(BVHBoneData* Root, ofstream& Stream, LEAP_HAND& F
     
 }
 
-void BVH::util::WriteFrameMotionData(BVHBoneData* Root, ofstream& Stream, LEAP_HAND& Frame)
+void BVH::util::WriteFrameMotionData(Joint* Root, ofstream& Stream, LEAP_HAND& Frame)
 {
     if(Root->ParentBone != nullptr)
     {
@@ -100,16 +102,21 @@ void BVH::util::WriteFrameMotionData(BVHBoneData* Root, ofstream& Stream, LEAP_H
         Stream << Offset.ToString() << " ";
     }else
     {
-       Stream << "0 0 0 ";
+        auto Vec2 = LeapInterleave::GetHandFromData(Root, Frame);
+        Vector3f Offset = Leap2ImoVec(Vec2->prev_joint) - Leap2ImoVec(Vec2->next_joint);
+
+        Stream << Offset.ToString();
+        Stream << " ";
     }
 
     auto Quat = LeapInterleave::GetHandFromData(Root, Frame)->rotation;
     Stream << Quat.z << " " << Quat.x << " " << Quat.y << " ";
+    //Stream << "0 0 0 ";
     if(Root->NumChildren > 0)
     {
         for(int childIdx = 0; childIdx < Root->NumChildren; ++childIdx)
         {
-            BVHBoneData* HBone = Root->Children[childIdx];
+            Joint* HBone = Root->Children[childIdx];
             WriteFrameMotionData(HBone, Stream, Frame);
         }
     }

@@ -9,3 +9,8 @@ inline Vector3f Leap2ImoVec(LEAP_VECTOR LeapVector)
 {
     return {LeapVector.x, LeapVector.y, LeapVector.z};
 }
+
+inline Quaternion Leap2ImoQuat(LEAP_QUATERNION LeapQuat)
+{
+    return {LeapQuat.x, LeapQuat.y, LeapQuat.z, LeapQuat.w};
+}
