@@ -90,21 +90,17 @@ void LeapInterleave::StartRecording()
     /*std::cout << Vector3f(b).X << endl;
     std::cout << Vector3f(1.0f,2.0f,3.0f).Dot(Vector3f(1.0f,5.0f,7.0f)) << endl;
     std::cout << glm::dot(glm::vec3(1,2,3),glm::vec3(1,5,7)) << endl;*/
-
-    auto Bone = GetHandFromData(&Skeleton::THUMB_Metacarpal, Hands[0]);
-    if(Bone)
-    {
-        cout << Leap2ImoVec(Bone->prev_joint).ToString() << endl;
-        cout << Leap2ImoVec(Hands[0].thumb.metacarpal.prev_joint).ToString() << endl;
-    }
+    
     
 }
 
 void LeapInterleave::StopRecording(const char* Filename)
 {
     IsRecording = false;
+
+    Export::BVHExporter* Exporter = new Export::BVHExporter(Filename, *RecordingBulk);
     
-    BVH::WriteToFile(Filename, 0, RecordingBulk);
+    Exporter->WriteToFile();
 }
 
 void LeapInterleave::SetTrackingMode(bool HMD)

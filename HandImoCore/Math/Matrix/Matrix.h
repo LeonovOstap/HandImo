@@ -5,145 +5,365 @@
 namespace MathImpl
 {
     template<typename T>
-    class Matrix4Base
+    struct Matrix4Base
     {
+
+        typedef VectorBase<T, 3> Vector3;
+        typedef Matrix4Base<T> Mat4x4;
+    public:
+        //Identity Matrix
         Matrix4Base()
         {
-            x.X = 1; x.Y = 0; x.Z = 0; x.W = 0;
-            y.X = 0; y.Y = 1; y.Z = 0; y.W = 0;
-            z.X = 0; z.Y = 0; z.Z = 1; z.W = 0;
-            w.X = 0; w.Y = 0; w.Z = 0; w.W = 1;
+            T Ident[4][4] =
+                {{1, 0, 0, 0},
+                {0, 1, 0, 0},
+                {0, 0, 1, 0},
+                {0, 0, 0, 1}};
+            //static_assert(sizeof(Ident) < 16 * sizeof(T), "Size");
+            memcpy(m4, Ident, 16 * sizeof(T));
         }
 
-        Matrix4Base(const T* m)
+        Matrix4Base(T** Mat)
         {
-            x.X = m[0];  x.Y = m[1];  x.Z = m[2];  x.W = m[3];
-            y.X = m[4];  y.Y = m[5];  y.Z = m[6];  y.W = m[7];
-            z.X = m[8];  z.Y = m[9];  z.Z = m[10]; z.W = m[11];
-            w.X = m[12]; w.Y = m[13]; w.Z = m[14]; w.W = m[15];
+            *this = Mat;
         }
 
-        void Invert() 
+        Matrix4Base(Quaternion Quat)
         {
-            x.X = y.Z * z.W * w.Y - y.W * z.Z * w.Y + y.W * z.Y * w.Z - y.Y * z.W * w.Z - y.Z * z.Y * w.W + y.Y * z.Z * w.w; 
-            x.Y = x.W * z.Z * w.Y - x.Z * z.W * w.Y - x.W * z.Y * w.Z + x.Y * z.W * w.Z + x.Z * z.Y * w.W - x.Y * z.Z * w.w; 
-            x.Z = x.Z * y.W * w.Y - x.W * y.Z * w.Y + x.W * y.Y * w.Z - x.Y * y.W * w.Z - x.Z * y.Y * w.W + x.Y * y.Z * w.w; 
-            x.W = x.W * y.Z * z.Y - x.Z * y.W * z.Y - x.W * y.Y * z.Z + x.Y * y.W * z.Z + x.Z * y.Y * z.W - x.Y * y.Z * z.w; 
-            y.X = y.W * z.Z * w.X - y.Z * z.W * w.X - y.W * z.X * w.Z + y.X * z.W * w.Z + y.Z * z.X * w.W - y.X * z.Z * w.w; 
-            y.Y = x.Z * z.W * w.X - x.W * z.Z * w.X + x.W * z.X * w.Z - x.X * z.W * w.Z - x.Z * z.X * w.W + x.X * z.Z * w.w; 
-            y.Z = x.W * y.Z * w.X - x.Z * y.W * w.X - x.W * y.X * w.Z + x.X * y.W * w.Z + x.Z * y.X * w.W - x.X * y.Z * w.w; 
-            y.W = x.Z * y.W * z.X - x.W * y.Z * z.X + x.W * y.X * z.Z - x.X * y.W * z.Z - x.Z * y.X * z.W + x.X * y.Z * z.w; 
-            z.X = y.Y * z.W * w.X - y.W * z.Y * w.X + y.W * z.X * w.Y - y.X * z.W * w.Y - y.Y * z.X * w.W + y.X * z.Y * w.w; 
-            z.Y = x.W * z.Y * w.X - x.Y * z.W * w.X - x.W * z.X * w.Y + x.X * z.W * w.Y + x.Y * z.X * w.W - x.X * z.Y * w.w; 
-            z.Z = x.Y * y.W * w.X - x.W * y.Y * w.X + x.W * y.X * w.Y - x.X * y.W * w.Y - x.Y * y.X * w.W + x.X * y.Y * w.w; 
-            z.W = x.W * y.Y * z.X - x.Y * y.W * z.X - x.W * y.X * z.Y + x.X * y.W * z.Y + x.Y * y.X * z.W - x.X * y.Y * z.w; 
-            w.X = y.Z * z.Y * w.X - y.Y * z.Z * w.X - y.Z * z.X * w.Y + y.X * z.Z * w.Y + y.Y * z.X * w.Z - y.X * z.Y * w.z; 
-            w.Y = x.Y * z.Z * w.X - x.Z * z.Y * w.X + x.Z * z.X * w.Y - x.X * z.Z * w.Y - x.Y * z.X * w.Z + x.X * z.Y * w.z; 
-            w.Z = x.Z * y.Y * w.X - x.Y * y.Z * w.X - x.Z * y.X * w.Y + x.X * y.Z * w.Y + x.Y * y.X * w.Z - x.X * y.Y * w.z; 
-            w.W = x.Y * y.Z * z.X - x.Z * y.Y * z.X + x.Z * y.X * z.Y - x.X * y.Z * z.Y - x.Y * y.X * z.Z + x.X * y.Y * z.z; 
-		
-            T d = Determinant();
-		
-            x = x / d;
-            y = y / d;
-            z = z / d;
-            w = w / d;
+            *this = Quat;
+        }
+
+        Mat4x4 Inverse(const Mat4x4& b) 
+        {
+            Mat4x4 a = *this;
+            
+            T s = 1 / b.Determinant();
+            a.m4[0][0] = (b.m4[1][1]*b.m4[2][2] - b.m4[1][2]*b.m4[2][1]) * s;
+            a.m4[0][1] = (b.m4[2][1]*b.m4[0][2] - b.m4[2][2]*b.m4[0][1]) * s;
+            a.m4[0][2] = (b.m4[0][1]*b.m4[1][2] - b.m4[0][2]*b.m4[1][1]) * s;
+            a.m4[0][3] =  b.m4[0][3];
+            a.m4[1][0] = (b.m4[1][2]*b.m4[2][0] - b.m4[1][0]*b.m4[2][2]) * s;
+            a.m4[1][1] = (b.m4[2][2]*b.m4[0][0] - b.m4[2][0]*b.m4[0][2]) * s;
+            a.m4[1][2] = (b.m4[0][2]*b.m4[1][0] - b.m4[0][0]*b.m4[1][2]) * s;
+            a.m4[1][3] =  b.m4[1][3];
+            a.m4[2][0] = (b.m4[1][0]*b.m4[2][1] - b.m4[1][1]*b.m4[2][0]) * s;
+            a.m4[2][1] = (b.m4[2][0]*b.m4[0][1] - b.m4[2][1]*b.m4[0][0]) * s;
+            a.m4[2][2] = (b.m4[0][0]*b.m4[1][1] - b.m4[0][1]*b.m4[1][0]) * s;
+            a.m4[2][3] =  b.m4[2][3];
+            a.m4[3][0] =  -(m4[0][0]*b.m4[3][0] + m4[1][0]*b.m4[3][1] + m4[2][0]*b.m4[3][2]);
+            a.m4[3][1] =  -(m4[0][1]*b.m4[3][0] + m4[1][1]*b.m4[3][1] + m4[2][1]*b.m4[3][2]);
+            a.m4[3][2] =  -(m4[0][2]*b.m4[3][0] + m4[1][2]*b.m4[3][1] + m4[2][2]*b.m4[3][2]);
+            a.m4[3][3] =  b.m4[3][3];
+            return a;
         }
 	
         T Determinant() const
         {
-            T value;
-            value =
-            x.W * y.Z * z.Y * w.X - x.Z * y.W * z.Y * w.X - x.W * y.Y * z.Z * w.X + x.Y * y.W * z.Z * w.X +
-            x.Z * y.Y * z.W * w.X - x.Y * y.Z * z.W * w.X - x.W * y.Z * z.X * w.Y + x.Z * y.W * z.X * w.Y +
-            x.W * y.X * z.Z * w.Y - x.X * y.W * z.Z * w.Y - x.Z * y.X * z.W * w.Y + x.X * y.Z * z.W * w.Y +
-            x.W * y.Y * z.X * w.Z - x.Y * y.W * z.X * w.Z - x.W * y.X * z.Y * w.Z + x.X * y.W * z.Y * w.Z +
-            x.Y * y.X * z.W * w.Z - x.X * y.Y * z.W * w.Z - x.Z * y.Y * z.X * w.W + x.Y * y.Z * z.X * w.W +
-            x.Z * y.X * z.Y * w.W - x.X * y.Z * z.Y * w.W - x.Y * y.X * z.Z * w.W + x.X * y.Y * z.Z * w.w; 
-            return value;
+            return
+                m4[0][0] * m4[1][1] * m4[2][2] +
+                m4[0][1] * m4[1][2] * m4[2][0] +
+                m4[0][2] * m4[1][0] * m4[2][1] -
+                m4[0][2] * m4[1][1] * m4[2][0] -
+                m4[0][1] * m4[1][0] * m4[2][2] -
+                m4[0][0] * m4[1][2] * m4[2][1];
         }
 
-        static Matrix4Base<T> Identity()
+        static Mat4x4 Identity()
         {
-            return Matrix4Base<T>();
+            return Mat4x4();
         }
 
-        VectorBase<T, 3> Translation() const
+        Vector3 Translation() const
         {
-            VectorBase<T, 4> tx = *this * VectorBase<T, 4>( 0, 0, 0, 1 );
-            return VectorBase<T, 3>(tx.X,tx.Y,tx.Z);
+            
         }
 
         Quaternion Rotation() const
         {
-            float W;
-            float X;
-            float Y;
-            float Z;
+            Quaternion Quat;
+            
+            T tr = m4[0][0] + m4[1][1] + m4[2][2];
+            if ( tr > 0 )
+            {
+                T s = static_cast<T>(sqrt(tr + 1));
+                Quat.W = s * static_cast<T>(0.5);
+                s = static_cast<T>(0.5) / s;
+                Quat.X = (m4[1][2] - m4[2][1]) * s;
+                Quat.Y = (m4[2][0] - m4[0][2]) * s;
+                Quat.Z = (m4[0][1] - m4[1][0]) * s;
+            }
+            else
+            {
+                int i = 0;
+                if ( m4[1][1] > m4[0][0] ) i = 1;
+                if ( m4[2][2] > m4[i][i] ) i = 2;
 
-           // W = sqrt(1 + X.X )
-            return Quaternion();
+                int j = i + 1; if ( j > 2 ) j = 0;
+                int k = j + 1; if ( k > 2 ) k = 0;
+
+                T s = static_cast<T>(sqrt(m4[i][i] - m4[j][j] - m4[k][k] + 1));
+                if ( s < std::numeric_limits<T>::epsilon() )
+                {
+                    Quat.X = Quat.Y = Quat.Z = 0;
+                    Quat.W = 1;
+                }
+                else
+                {
+                   T pq[16];
+                    memcpy(pq, m16, sizeof(m16));
+                    pq[i] = s * static_cast<T>(0.5);
+                    s = static_cast<T>(0.5) / s;
+                    pq[3] = (m4[j][k] - m4[k][j]) * s;
+                    pq[j] = (m4[i][j] + m4[j][i]) * s;
+                    pq[k] = (m4[i][k] + m4[k][i]) * s;
+                }
+            }
+            return Quat;
         }
+        
 
         void Translate(T tX, T tY, T tZ)
         {
-            w.X = tX;
-            w.Y = tY;
-            w.Z = tZ;
+            m4[3][0] = tX;
+            m4[3][1] = tY;
+            m4[3][2] = tZ;
         }
 
-        void Translate(VectorBase<T, 3> Vector)
+        void Translate(const Vector3 Vector)
         {
             Translate(Vector.X, Vector.Y, Vector.Z);
+        }
+        Mat4x4 Transpose()
+        {
+            Mat4x4 Copy = Transpose(*this);
+            return Copy;
+        }
+
+        Mat4x4 Transpose(const Mat4x4& u)
+        {
+            Mat4x4 a = *this;
+            
+            a.m4[0][0] = u.m4[0][0];
+            a.m4[0][1] = u.m4[1][0];
+            a.m4[0][2] = u.m4[2][0];
+            a.m4[0][3] = u.m4[3][0];
+            a.m4[1][0] = u.m4[0][1];
+            a.m4[1][1] = u.m4[1][1];
+            a.m4[1][2] = u.m4[2][1];
+            a.m4[1][3] = u.m4[3][1];
+            a.m4[2][0] = u.m4[0][2];
+            a.m4[2][1] = u.m4[1][2];
+            a.m4[2][2] = u.m4[2][2];
+            a.m4[2][3] = u.m4[3][2];
+            a.m4[3][0] = u.m4[0][3];
+            a.m4[3][1] = u.m4[1][3];
+            a.m4[3][2] = u.m4[2][3];
+            a.m4[3][3] = u.m4[3][3];
+            return a;
+        }
+
+        void RotateAngleAxis(const T& angle, const Vector3& axis)
+        {
+            T length2 = axis.LengthSquared();
+            if ( length2 == 0 )
+            {
+                Identity();
+                return;
+            }
+	
+            Vector3 n = axis / static_cast<T>(sqrt(length2));
+            T s = static_cast<T>(sin(angle));
+            T c = static_cast<T>(cos(angle));
+            T k = 1 - c;
+
+            T xx = n.x * n.x * k + c;
+            T yy = n.y * n.y * k + c;
+            T zz = n.z * n.z * k + c;
+            T xy = n.x * n.y * k;
+            T yz = n.y * n.z * k;
+            T zx = n.z * n.x * k;
+            T xs = n.x * s;
+            T ys = n.y * s;
+            T zs = n.z * s;
+	
+            m4[0][0] = xx;
+            m4[0][1] = xy + zs;
+            m4[0][2] = zx - ys;
+            m4[0][3] = 0;
+            m4[1][0] = xy - zs;
+            m4[1][1] = yy;
+            m4[1][2] = yz + xs;
+            m4[1][3] = 0;
+            m4[2][0] = zx + ys;
+            m4[2][1] = yz - xs;
+            m4[2][2] = zz;
+            m4[2][3] = 0;
+            m4[3][0] = 0;
+            m4[3][1] = 0;
+            m4[3][2] = 0;
+            m4[3][3] = 1;
         }
 
         void Scale( T x, T y, T z )
         {
-            x.X = x;
-            y.Y = y; 
-            z.Z = z;
+            m4[0][0] = x;
+            m4[1][1] = y;
+            m4[2][2] = z;
         }
-
-
     
-        Matrix4Base<T> operator * (const Matrix4Base<T>& b) const
+        Mat4x4 operator+ (const Mat4x4& u) const
         {
-            Matrix4Base<T> m;
-            m.x.X = x.X * b.x.X + x.Y * b.y.X + x.Z * b.z.X + x.W * b.w.x;
-            m.x.Y = x.X * b.x.Y + x.Y * b.y.Y + x.Z * b.z.Y + x.W * b.w.y;
-            m.x.Z = x.X * b.x.Z + x.Y * b.y.Z + x.Z * b.z.Z + x.W * b.w.z;
-            m.x.W = x.X * b.x.W + x.Y * b.y.W + x.Z * b.z.W + x.W * b.w.w;
-            m.y.X = y.X * b.x.X + y.Y * b.y.X + y.Z * b.z.X + y.W * b.w.x;
-            m.y.Y = y.X * b.x.Y + y.Y * b.y.Y + y.Z * b.z.Y + y.W * b.w.y;
-            m.y.Z = y.X * b.x.Z + y.Y * b.y.Z + y.Z * b.z.Z + y.W * b.w.z;
-            m.y.W = y.X * b.x.W + y.Y * b.y.W + y.Z * b.z.W + y.W * b.w.w;
-            m.z.X = z.X * b.x.X + z.Y * b.y.X + z.Z * b.z.X + z.W * b.w.x;
-            m.z.Y = z.X * b.x.Y + z.Y * b.y.Y + z.Z * b.z.Y + z.W * b.w.y;
-            m.z.Z = z.X * b.x.Z + z.Y * b.y.Z + z.Z * b.z.Z + z.W * b.w.z;
-            m.z.W = z.X * b.x.W + z.Y * b.y.W + z.Z * b.z.W + z.W * b.w.w;
-            m.w.X = w.X * b.x.X + w.Y * b.y.X + w.Z * b.z.X + w.W * b.w.x;
-            m.w.Y = w.X * b.x.Y + w.Y * b.y.Y + w.Z * b.z.Y + w.W * b.w.y;
-            m.w.Z = w.X * b.x.Z + w.Y * b.y.Z + w.Z * b.z.Z + w.W * b.w.z;
-            m.w.W = w.X * b.x.W + w.Y * b.y.W + w.Z * b.z.W + w.W * b.w.w;
-            return m;
+            Mat4x4 r;
+            for ( int i=0; i<4; ++i )
+            {
+                r.m4[i][0] = m4[i][0] + u.m4[i][0];
+                r.m4[i][1] = m4[i][1] + u.m4[i][1];
+                r.m4[i][2] = m4[i][2] + u.m4[i][2];
+                r.m4[i][3] = m4[i][3] + u.m4[i][3];
+            }
+            return r;
         }
 
-        VectorBase<T, 4> operator * (const VectorBase<T, 4>& b) const
+        Mat4x4 operator- (const Mat4x4& u) const
         {
-            VectorBase<T, 4> v;
-		
-            v.X = x.X * b.X + y.X * b.Y + z.X * b.Z + w.X * b.w;
-            v.Y = x.Y * b.X + y.Y * b.Y + z.Y * b.Z + w.Y * b.w;
-            v.Z = x.Z * b.X + y.Z * b.Y + z.Z * b.Z + w.Z * b.w;
-            v.W = x.W * b.X + y.W * b.Y + z.W * b.Z + w.W * b.w;
-		
-            return v;
+            Mat4x4 r;
+            for ( int i=0; i<4; ++i )
+            {
+                r.m4[i][0] = m4[i][0] - u.m4[i][0];
+                r.m4[i][1] = m4[i][1] - u.m4[i][1];
+                r.m4[i][2] = m4[i][2] - u.m4[i][2];
+                r.m4[i][3] = m4[i][3] - u.m4[i][3];
+            }
+            return r;
+        }
+
+        Mat4x4 operator* (const Mat4x4& u) const
+        {
+            Mat4x4 r;
+            for ( int i=0; i<4; ++i )
+            {
+                const T* v = m16 + i * 4;
+                r.m4[i][0] = v[0]*u.m4[0][0] + v[1]*u.m4[1][0] + v[2]*u.m4[2][0] + v[3]*u.m4[3][0];
+                r.m4[i][1] = v[0]*u.m4[0][1] + v[1]*u.m4[1][1] + v[2]*u.m4[2][1] + v[3]*u.m4[3][1];
+                r.m4[i][2] = v[0]*u.m4[0][2] + v[1]*u.m4[1][2] + v[2]*u.m4[2][2] + v[3]*u.m4[3][2];
+                r.m4[i][3] = v[0]*u.m4[0][3] + v[1]*u.m4[1][3] + v[2]*u.m4[2][3] + v[3]*u.m4[3][3];
+            }
+            return r;
+        }
+
+        Mat4x4& operator+= (const Mat4x4& u)
+        {
+            for ( int i=0; i<4; ++i )
+            {
+                m4[i][0] += u.m4[i][0];
+                m4[i][1] += u.m4[i][1];
+                m4[i][2] += u.m4[i][2];
+                m4[i][3] += u.m4[i][3];
+            }
+            return *this;
+        }
+
+        Mat4x4& operator-= (const Mat4x4& u)
+        {
+            for ( int i=0; i<4; ++i )
+            {
+                m4[i][0] -= u.m4[i][0];
+                m4[i][1] -= u.m4[i][1];
+                m4[i][2] -= u.m4[i][2];
+                m4[i][3] -= u.m4[i][3];
+            }
+            return *this;
+        }
+
+        Mat4x4& operator*= (const Mat4x4& u)
+        {
+            for ( int i=0; i<4; ++i )
+            {
+                T v[4];
+                v[0] = m4[i][0];
+                v[1] = m4[i][1];
+                v[2] = m4[i][2];
+                v[3] = m4[i][3];
+                m4[i][0] = v[0]*u.m4[0][0] + v[1]*u.m4[1][0] + v[2]*u.m4[2][0] + v[3]*u.m4[3][0];
+                m4[i][1] = v[0]*u.m4[0][1] + v[1]*u.m4[1][1] + v[2]*u.m4[2][1] + v[3]*u.m4[3][1];
+                m4[i][2] = v[0]*u.m4[0][2] + v[1]*u.m4[1][2] + v[2]*u.m4[2][2] + v[3]*u.m4[3][2];
+                m4[i][3] = v[0]*u.m4[0][3] + v[1]*u.m4[1][3] + v[2]*u.m4[2][3] + v[3]*u.m4[3][3];
+            }
+            return *this;
+        }
+
+        Mat4x4& operator*= (const T& s)
+        {
+            for ( int i=0; i<16; ++i )
+            {
+                m16[i] *= s;
+            }
+            return *this;
+        }
+
+        void operator= (const T& s)
+        {
+            m4[0][0] = s; m4[0][1] = 0; m4[0][2] = 0; m4[0][3] = 0;
+            m4[1][0] = 0; m4[1][1] = s; m4[1][2] = 0; m4[1][3] = 0;
+            m4[2][0] = 0; m4[2][1] = 0; m4[2][2] = s; m4[2][3] = 0;
+            m4[3][0] = 0; m4[3][1] = 0; m4[3][2] = 0; m4[3][3] = 1;
+        }
+
+        void operator=(const Mat4x4& u)
+        {
+            for ( int i=0; i<4; ++i )
+            {
+                m4[i][0] = u.m4[i][0];
+                m4[i][1] = u.m4[i][1];
+                m4[i][2] = u.m4[i][2];
+                m4[i][3] = u.m4[i][3];
+            }
+        }
+        void operator=(const T **Mat)
+        {
+            static_assert(sizeof(Mat) < 16 * sizeof(T));
+            memcpy(m4, Mat, 16 * sizeof(T));
+        }
+
+        void operator= (const Quaternion& q)
+        {
+            T sx = q.X * 2;
+            T sy = q.Y * 2;
+            T sz = q.Z * 2;
+            T wx = q.W * sx;
+            T wy = q.W * sy;
+            T wz = q.W * sz;
+            T xx = q.X * sx;
+            T xy = q.X * sy;
+            T xz = q.X * sz;
+            T yy = q.Y * sy;
+            T yz = q.Y * sz;
+            T zz = q.Z * sz;
+	
+            m4[0][0] = 1 - yy - zz;
+            m4[0][1] = xy + wz;
+            m4[0][2] = xz - wy;
+            m4[0][3] = 0;
+            m4[1][0] = xy - wz;
+            m4[1][1] = 1 - xx - zz;
+            m4[1][2] = yz + wx;
+            m4[1][3] = 0;
+            m4[2][0] = xz + wy;
+            m4[2][1] = yz - wx;
+            m4[2][2] = 1 - xx - yy;
+            m4[2][3] = 0;
+            m4[3][0] = 0;
+            m4[3][1] = 0;
+            m4[3][2] = 0;
+            m4[3][3] = 1;
         }
         
-        VectorBase<T, 4> x;
-        VectorBase<T, 4> y;
-        VectorBase<T, 4> z;
-        VectorBase<T, 4> w;
+
+        union
+        {
+            T m4[4][4];
+            T m16[16];
+        };
     
     };
 }

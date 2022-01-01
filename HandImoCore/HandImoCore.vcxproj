@@ -267,6 +267,7 @@
     <None Include="imgui\.gitignore" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Math\Math.h" />
     <ClInclude Include="Skeleton.h" />
     <ClInclude Include="BVHExporter.h" />
     <ClInclude Include="camera.h" />

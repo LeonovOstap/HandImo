@@ -388,7 +388,7 @@ int main(int a, char** b)
                 ImGui::Indent(16);
                 ImGui::Text("Pinch %f", Hand.pinch_strength);
                 ImGui::Text("Grab %f", Hand.grab_strength);
-                ImGui::Text("Tilt x:%f y:%f z:%f w:%f", Hand.arm.rotation.x, Hand.arm.rotation.y, Hand.arm.rotation.z, Hand.arm.rotation.w);
+                //ImGui::Text("Tilt x:%s", Leap2ImoQuat(Hand.)
                 ImGui::Unindent(16.0f);
 
                 glPushMatrix();
